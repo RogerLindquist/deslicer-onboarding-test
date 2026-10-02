@@ -1,0 +1,44 @@
+[]
+access = read : [ admin, sc_admin ], write : [ admin, sc_admin ]
+export = none
+
+[views]
+access = read : [ admin, sc_admin ], write : [ admin, sc_admin ]
+export = none
+
+[inputs]
+access = read : [ admin, sc_admin ], write : [ admin, sc_admin ]
+export = none
+
+[deslicer_ai_insights]
+access = read : [ admin, sc_admin ], write : [ admin, sc_admin ]
+export = none
+
+[props]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+
+[transforms]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+
+[eventtypes]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+
+[tags]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+
+[macros]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+
+[alert_actions]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+
+[alert_actions/deslicer_investigate]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+

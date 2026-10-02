@@ -1,0 +1,397 @@
+{
+    "pages": {
+        "configuration": {
+            "tabs": [
+                {
+                    "name": "account",
+                    "table": {
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ],
+                        "header": [
+                            {
+                                "label": "Name",
+                                "field": "name"
+                            },
+                            {
+                                "label": "Observer API URL",
+                                "field": "observer_api_url"
+                            }
+                        ]
+                    },
+                    "restHandlerModule": "deslicer_ai_insights_account_sync_rh",
+                    "restHandlerClass": "CustomAccountSyncHandler",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Connection name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for this connection (e.g. production, staging).",
+                            "required": true
+                        },
+                        {
+                            "type": "text",
+                            "label": "Enrollment Token",
+                            "field": "enrollment_token",
+                            "help": "Enrollment token from the Deslicer AI portal. Required on first setup; leave blank when editing other fields to keep the existing token.",
+                            "required": false,
+                            "encrypted": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Enrollment token must be between 10 and 2048 characters.",
+                                    "minLength": 10,
+                                    "maxLength": 2048
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Observer API URL",
+                            "field": "observer_api_url",
+                            "help": "Deslicer Observer API endpoint for your environment. The default is the EU Standard plan endpoint — replace with your own tenant URL if you are on a different plan or self-hosting (e.g. https://dap-eu-s1t8vn.deslicer.ai). HTTPS required.",
+                            "required": true,
+                            "defaultValue": "https://dap-eu-s1t8vn.deslicer.ai",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Observer URL must start with https://. HTTP is not supported in production.",
+                                    "pattern": "^https://.+"
+                                }
+                            ]
+                        }
+                    ],
+                    "title": "Connection"
+                },
+                {
+                    "name": "logging",
+                    "title": "Logging",
+                    "entity": [
+                        {
+                            "type": "singleSelect",
+                            "label": "Log level",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "DEBUG",
+                                        "label": "DEBUG"
+                                    },
+                                    {
+                                        "value": "INFO",
+                                        "label": "INFO"
+                                    },
+                                    {
+                                        "value": "WARNING",
+                                        "label": "WARNING"
+                                    },
+                                    {
+                                        "value": "ERROR",
+                                        "label": "ERROR"
+                                    },
+                                    {
+                                        "value": "CRITICAL",
+                                        "label": "CRITICAL"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "INFO",
+                            "field": "loglevel",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Log level must be one of: DEBUG, INFO, WARNING, ERROR, CRITICAL",
+                                    "pattern": "^DEBUG|INFO|WARNING|ERROR|CRITICAL$"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "title": "Configuration",
+            "description": "Set up your add-on"
+        },
+        "inputs": {
+            "services": [
+                {
+                    "name": "deslicer_ai_insights",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input Name must begin with a letter and consist exclusively of alphanumeric characters and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name should be between 1 and 100",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ],
+                            "field": "name",
+                            "help": "A unique name for the data input.",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Connection",
+                            "options": {
+                                "referenceName": "account"
+                            },
+                            "help": "Connection with enrollment token for this Insights Node. The node auto-enrolls and receives API keys automatically.",
+                            "field": "account",
+                            "required": true
+                        },
+                        {
+                            "type": "singleSelect",
+                            "label": "Log Level",
+                            "field": "log_level",
+                            "defaultValue": "info",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "debug",
+                                        "label": "Debug"
+                                    },
+                                    {
+                                        "value": "info",
+                                        "label": "Info"
+                                    },
+                                    {
+                                        "value": "warn",
+                                        "label": "Warning"
+                                    },
+                                    {
+                                        "value": "error",
+                                        "label": "Error"
+                                    }
+                                ]
+                            },
+                            "help": "Log verbosity for the collector binary.",
+                            "required": false
+                        },
+                        {
+                            "type": "singleSelect",
+                            "field": "index",
+                            "label": "Index",
+                            "defaultValue": "main",
+                            "options": {
+                                "endpointUrl": "data/indexes?search=isInternal=0+disabled=0",
+                                "denyList": "^_.*$",
+                                "createSearchChoice": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "index_name"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "field": "interval",
+                            "label": "Interval",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Interval must be either a non-negative number, CRON interval or -1.",
+                                    "pattern": "^((?:-1|\\d+(?:\\.\\d+)?)|(([\\*\\d{1,2}\\,\\-\\/]+\\s){4}[\\*\\d{1,2}\\,\\-\\/]+))$"
+                                }
+                            ],
+                            "help": "Set to 0 for continuous watch mode (recommended). Non-zero values run the collector periodically.",
+                            "required": true,
+                            "defaultValue": "0"
+                        },
+                        {
+                            "type": "textarea",
+                            "label": "Excluded apps",
+                            "field": "exclude_apps",
+                            "defaultValue": "",
+                            "required": false,
+                            "options": {
+                                "rowsMin": 2,
+                                "rowsMax": 6
+                            },
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Excluded apps list must be 4096 characters or fewer.",
+                                    "minLength": 0,
+                                    "maxLength": 4096
+                                },
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Glob meta-characters (* ? [ ] { }) are not allowed in exclude_apps. Use Excluded path globs for pattern-based exclusions.",
+                                    "pattern": "^[^*?\\[\\]{}]*$"
+                                }
+                            ],
+                            "help": "Comma- or newline-separated list of Splunk app folder names to exclude from observation (literal match against the folder under $SPLUNK_HOME/etc/apps/). Equivalent conf path: [observation_scope] exclude_apps in local/deslicer_ai_insights.conf. The agent's own TA and apps under system/ cannot be excluded."
+                        },
+                        {
+                            "type": "textarea",
+                            "label": "Excluded path globs",
+                            "field": "exclude_path_glob",
+                            "defaultValue": "",
+                            "required": false,
+                            "options": {
+                                "rowsMin": 2,
+                                "rowsMax": 6
+                            },
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Excluded path globs list must be 8192 characters or fewer.",
+                                    "minLength": 0,
+                                    "maxLength": 8192
+                                }
+                            ],
+                            "help": "Comma- or newline-separated POSIX glob patterns evaluated against paths RELATIVE to $SPLUNK_HOME/etc (e.g. apps/*/local/passwd*). Equivalent conf path: [observation_scope] exclude_path_glob. In clustered Splunk envs, configure via the deployer / cluster-manager bundle -- UI edits on member nodes are local-only and overwritten on the next bundle push."
+                        }
+                    ],
+                    "groups": [
+                        {
+                            "label": "Observation scope",
+                            "fields": [
+                                "exclude_apps",
+                                "exclude_path_glob"
+                            ],
+                            "options": {
+                                "isExpandable": true,
+                                "expand": false
+                            }
+                        }
+                    ],
+                    "inputHelperModule": "deslicer_ai_insights_helper",
+                    "title": "Deslicer AI Insights Collector"
+                }
+            ],
+            "title": "Inputs",
+            "description": "Manage Deslicer AI Insights collector inputs",
+            "table": {
+                "actions": [
+                    "edit",
+                    "delete",
+                    "clone"
+                ],
+                "header": [
+                    {
+                        "label": "Name",
+                        "field": "name"
+                    },
+                    {
+                        "label": "Connection",
+                        "field": "account"
+                    },
+                    {
+                        "label": "Index",
+                        "field": "index"
+                    },
+                    {
+                        "label": "Status",
+                        "field": "disabled"
+                    }
+                ],
+                "moreInfo": [
+                    {
+                        "label": "Name",
+                        "field": "name"
+                    },
+                    {
+                        "label": "Connection",
+                        "field": "account"
+                    },
+                    {
+                        "label": "Log Level",
+                        "field": "log_level"
+                    },
+                    {
+                        "label": "Index",
+                        "field": "index"
+                    },
+                    {
+                        "label": "Interval",
+                        "field": "interval"
+                    },
+                    {
+                        "label": "Status",
+                        "field": "disabled",
+                        "mapping": {
+                            "true": "Inactive",
+                            "false": "Active"
+                        }
+                    }
+                ]
+            }
+        },
+        "dashboard": {
+            "panels": [
+                {
+                    "name": "default"
+                },
+                {
+                    "name": "custom"
+                }
+            ],
+            "settings": {
+                "custom_tab_name": "Insights Node & internal logs"
+            }
+        }
+    },
+    "meta": {
+        "name": "deslicer_ai_insights",
+        "restRoot": "deslicer_ai_insights",
+        "version": "0.0.0+eecc92a",
+        "displayName": "Deslicer AI Insights Add-on",
+        "schemaVersion": "0.0.10",
+        "supportedThemes": [
+            "light",
+            "dark"
+        ],
+        "_uccVersion": "6.5.3"
+    },
+    "alerts": [
+        {
+            "name": "deslicer_investigate",
+            "label": "Deslicer Investigate",
+            "description": "Send this alert to Deslicer AI for agent investigation. Paste the endpoint URL and API token from your Deslicer Alert subscription.",
+            "iconFileName": "deslicer_investigate.png",
+            "customScript": "deslicer_investigate_logic",
+            "entity": [
+                {
+                    "type": "text",
+                    "label": "Deslicer endpoint URL",
+                    "field": "endpoint_url",
+                    "help": "Webhook URL from Deslicer AI Alert subscriptions. Production must be https://…/api/webhooks/splunk-alerts/<token>. Local: http://host.docker.internal:3000/api/webhooks/splunk-alerts/<token> (or localhost / 127.0.0.1).",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "label": "API token",
+                    "field": "api_token",
+                    "help": "Bearer token from Deslicer AI Alert subscription (shown once at creation). Not the Insights enrollment token. Stored in the alert action configuration on this search head.",
+                    "required": true
+                }
+            ]
+        }
+    ]
+}

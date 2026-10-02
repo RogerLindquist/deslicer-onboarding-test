@@ -1,0 +1,112 @@
+# Deslicer CI — verify / approve / reject / deploy / status (token path)
+# Secrets and vars are scoped to the GitHub Environment named below.
+
+name: Deslicer plan actions
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: verify, approve, reject, deploy, or status
+        required: true
+        type: choice
+        options: [verify, approve, reject, deploy, status]
+      plan_id:
+        description: External plan id
+        required: true
+        type: string
+      environment:
+        description: GitHub Environment name (tenant slug)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  resolve-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      target: ${{ steps.environments.outputs.target }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # tag v5
+      - id: environments
+        name: List environments
+        env:
+          PIN: ${{ github.event.inputs.environment }}
+          MODE: one
+        run: |
+          chmod +x .github/scripts/discover-deslicer-environments.sh
+          .github/scripts/discover-deslicer-environments.sh
+
+  run:
+    needs: resolve-environment
+    runs-on: ubuntu-latest
+    environment: ${{ needs.resolve-environment.outputs.target }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # tag v5
+      - name: Install deslicer
+        run: |
+          set -euo pipefail
+          export DESLICER_INSTALL_DIR="${HOME}/.local/bin"
+          mkdir -p "${DESLICER_INSTALL_DIR}"
+          INSTALL_SH="$(umask 077; mktemp)"
+          trap 'rm -f "${INSTALL_SH}"' EXIT
+          curl -fsSL "https://raw.githubusercontent.com/deslicer/cli/v1.3.2/scripts/install.sh" -o "${INSTALL_SH}"
+          echo "192979999546782cb495bb679fd6548942ec94326a5915766246c01873740a15  ${INSTALL_SH}" | sha256sum -c -
+          rm -f "${DESLICER_INSTALL_DIR}/deslicer"
+          DESLICER_VERSION="v1.3.2" bash "${INSTALL_SH}" || test -x "${DESLICER_INSTALL_DIR}/deslicer"
+          "${DESLICER_INSTALL_DIR}/deslicer" --version | grep -F "1.3.2"
+          echo "${DESLICER_INSTALL_DIR}" >> "${GITHUB_PATH}"
+      - name: Run
+        env:
+          DESLICER_API_TOKEN: ${{ secrets.DESLICER_API_TOKEN }}
+          OBSERVER_API_URL: ${{ vars.OBSERVER_API_URL }}
+          DESLICER_ENVIRONMENT: ${{ needs.resolve-environment.outputs.target }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTION: ${{ inputs.action }}
+          PLAN_ID: ${{ inputs.plan_id }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${DESLICER_API_TOKEN:-}" || -z "${PLAN_ID:-}" ]]; then
+            echo "Set DESLICER_API_TOKEN (GitHub Environment secret) and the plan_id input" >&2
+            exit 1
+          fi
+          if [[ -z "${DESLICER_ENVIRONMENT:-}" ]]; then
+            echo "Could not resolve environment stem from .deslicer/environments/" >&2
+            exit 1
+          fi
+          case "${ACTION}" in
+            verify)
+              LOG="$(mktemp)"
+              trap 'rm -f "${LOG}"' RETURN
+              set +e
+              deslicer change verify --plan-id "${PLAN_ID}" --environment "${DESLICER_ENVIRONMENT}" >"${LOG}" 2>&1
+              CODE=$?
+              set -e
+              cat "${LOG}"
+              OUTCOME=success
+              if [[ "${CODE}" -ne 0 ]]; then
+                OUTCOME=failure
+              fi
+              VERIFY_ERROR="$(sed -n 's/^verification failed: //p' "${LOG}" | tail -n 1)"
+              if [[ -z "${VERIFY_ERROR}" ]]; then
+                VERIFY_ERROR="$(grep -Ev '^[[:space:]]*$' "${LOG}" | tail -n 1 || true)"
+              fi
+              VERIFY_ERROR="$(printf '%s' "${VERIFY_ERROR}" | tr -d '\r' | cut -c1-200)"
+              export PLAN_ID ENVIRONMENT="${DESLICER_ENVIRONMENT}" OUTCOME EXIT_CODE="${CODE}" VERIFY_ERROR
+              chmod +x .github/scripts/append-verify-summary.sh
+              .github/scripts/append-verify-summary.sh || true
+              exit "${CODE}"
+              ;;
+            approve|reject|deploy)
+              deslicer change "${ACTION}" --plan-id "${PLAN_ID}" --environment "${DESLICER_ENVIRONMENT}"
+              ;;
+            status)
+              deslicer change status --plan-id "${PLAN_ID}"
+              ;;
+            *)
+              echo "Unknown action: ${ACTION}" >&2
+              exit 1
+              ;;
+          esac

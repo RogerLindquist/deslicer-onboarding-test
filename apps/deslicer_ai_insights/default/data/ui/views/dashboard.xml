@@ -1,0 +1,4 @@
+<?xml version="1.0" ?>
+<view template="deslicer_ai_insights:/pages/base.html" type="html" isDashboard="False">
+    <label>Monitoring Dashboard</label>
+</view>

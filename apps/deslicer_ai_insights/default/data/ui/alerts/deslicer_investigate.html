@@ -1,0 +1,22 @@
+<form class="form-horizontal form-complex">
+<div class="control-group">
+    <label class="control-label" for="deslicer_investigate_endpoint_url">Deslicer endpoint URL <span class="required">*</span> </label>
+    <div class="controls">
+<input type="text" name="action.deslicer_investigate.param.endpoint_url"
+        id="deslicer_investigate_endpoint_url" />
+            <span class="help-block">
+        Webhook URL from Deslicer AI Alert subscriptions. Production must be https://…/api/webhooks/splunk-alerts/<token>. Local: http://host.docker.internal:3000/api/webhooks/splunk-alerts/<token> (or localhost / 127.0.0.1).
+    </span>
+    </div>
+</div>
+<div class="control-group">
+    <label class="control-label" for="deslicer_investigate_api_token">API token <span class="required">*</span> </label>
+    <div class="controls">
+<input type="text" name="action.deslicer_investigate.param.api_token"
+        id="deslicer_investigate_api_token" />
+            <span class="help-block">
+        Bearer token from Deslicer AI Alert subscription (shown once at creation). Not the Insights enrollment token. Stored in the alert action configuration on this search head.
+    </span>
+    </div>
+</div>
+</form>

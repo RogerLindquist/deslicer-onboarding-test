@@ -1,0 +1,62 @@
+{
+    "dependencies": null,
+    "incompatibleApps": null,
+    "info": {
+        "author": [
+            {
+                "company": "Deslicer",
+                "email": "support@deslicer.com",
+                "name": "Deslicer"
+            }
+        ],
+        "classification": {
+            "categories": [
+                "Security, Fraud & Compliance"
+            ],
+            "developmentStatus": "Production/Stable",
+            "intendedAudience": "IT Professionals"
+        },
+        "commonInformationModels": {
+            "Application_State": ">=4.0.0",
+            "Authentication": ">=4.0.0",
+            "Change": ">=4.0.0"
+        },
+        "description": "Deslicer AI Insights",
+        "id": {
+            "group": null,
+            "name": "deslicer_ai_insights",
+            "version": "1.1.0"
+        },
+        "license": {
+            "name": "Deslicer Proprietary License",
+            "text": "./LICENSES/LICENSE.txt",
+            "uri": "https://deslicer.com/legal/license"
+        },
+        "privacyPolicy": {
+            "name": "Privacy Policy",
+            "text": null,
+            "uri": "https://deslicer.com/privacy"
+        },
+        "releaseDate": null,
+        "releaseNotes": {
+            "name": "RELEASE_NOTES",
+            "text": "RELEASE_NOTES.txt",
+            "uri": "https://github.com/deslicer/deslicer-automation-platform"
+        },
+        "title": "Deslicer AI Insights"
+    },
+    "inputGroups": null,
+    "platformRequirements": null,
+    "schemaVersion": "2.0.0",
+    "supportedDeployments": [
+        "_standalone",
+        "_distributed",
+        "_search_head_clustering"
+    ],
+    "targetWorkloads": [
+        "_search_heads",
+        "_indexers",
+        "_forwarders"
+    ],
+    "tasks": null
+}

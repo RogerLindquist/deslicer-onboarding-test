@@ -1,0 +1,22 @@
+# Deslicer environment configuration.
+# File stem "dap-102" maps to a workspace environment (tenant: dap-102).
+# Add apps under each inventory_group as `- source_path: <relative-app-path>`.
+# See README.md at the repository root for how this file is used.
+
+destinations:
+  - inventory_group: Workers
+    apps: []
+  - inventory_group: all_in_one_servers_ag1
+    apps:
+      - source_path: apps/deslicer_ai_insights
+  - inventory_group: data_collection_nodes_ag1
+    apps: []
+  - inventory_group: deployment_servers_ag1
+    apps: []
+  - inventory_group: forwarders_ag1
+    apps: []
+  - inventory_group: monitoring_consoles_ag1
+    apps: []
+  - inventory_group: standalone_searchheads_ag1
+    apps:
+      - source_path: apps/deslicer_ai_insights

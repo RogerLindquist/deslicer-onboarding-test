@@ -1,0 +1,131 @@
+## 1.1.0 (2026-08-13)
+
+### Added
+- feat(alerts): Deslicer Investigate alert action + local contract tests
+- feat(alerts): include `server_host` in investigate payload
+
+### Fixed
+- fix(alerts): clear ruff failures and ship investigate icons
+- fix(alerts): use Deslicer brand logo mark for investigate icons
+
+---
+
+## 1.0.2 (2026-08-05)
+
+### Fixed
+- fix(ci): pin splunk-add-on-ucc-framework 6.5.3, strict DAP semver resolution, surface gh download errors
+
+### Changed
+- [docs] align 1.0.2 release notes with shipped behavior; note UCC 6.5.3 rebuild
+- docs(release): polish v1.0.2 Splunkbase release notes
+
+**DAP binary:** `insights-staging-latest`
+
+---
+
+## 1.0.0 (2026-04-27)
+
+### Fixed
+- fix(release): resolve prerelease DAP binaries
+
+**DAP binary:** `v1.0.0-dev.1`
+
+---
+
+Deslicer AI Insights Add-on — Release Notes
+============================================
+
+Version 1.1.0 (2026-08-13)
+---------------------------
+Deslicer Investigate custom alert action, Splunk host identity in the payload,
+and branded alert-action icons.
+
+Added:
+  - Deslicer Investigate alert action (deslicer_investigate) posts Splunk
+    alert context to Deslicer AI for agent investigation
+  - Alert payload includes server_host so Deslicer can identify the search
+    head that fired the alert
+  - Branded alert-action icons (deslicer_investigate.png / alerticon.png)
+    from the official Deslicer logo mark
+
+Version 1.0.2 (2026-08-05)
+---------------------------
+Enrollment-issue dashboard panel, hardened defaults, and a toolchain rebuild
+that maintains Splunk Cloud Platform compatibility.
+
+Added:
+  - Enrollment Issues (Action Required) panel on the Node Health dashboard tab
+    with remediation guidance when tokens are blocked, revoked, or missing
+
+Changed:
+  - Rebuilt with splunk-add-on-ucc-framework 6.5.3 to maintain Splunk Cloud
+    Platform compatibility; the package ships no appserver/templates/ or
+    appserver/modules/ paths (no Mako templates)
+  - Add-on is now visible in Splunk Web by default (is_visible = true);
+    hide it per tier via local/app.conf where the UI is not wanted
+  - Default Observer URL in the shipped conf is
+    https://dap-eu-s1t8vn.deslicer.ai
+  - Insights node User-Agent renamed to Deslicer-Insights-Node/<version>
+
+Fixed:
+  - btool conf spec documentation for observer_api_url and collection interval;
+    full deslicer_ai_insights.conf.spec ships in the package
+  - CI accepts DAP floating release tags (insights-dev-latest,
+    insights-staging-latest) for binary downloads
+
+Version 1.0.1 (2026-06-03)
+---------------------------
+Redesigned monitoring dashboard, refreshed branding, and a packaging fix.
+
+Added:
+  - Redesigned Insights Node Monitoring dashboard (Dashboard Studio) with two
+    tabs:
+      * Node Health — enrollment status, per-node status with a "last seen"
+        indicator, collector error rate, and single-value counts for monitored
+        hosts, events collected, and configuration files observed
+      * Node Activity — configuration file-change activity, authentication and
+        enrollment events, API key rotation events, and a node audit trail
+  - Configuration file-changes panel and per-node "last seen" indicator
+
+Changed:
+  - Refreshed, on-brand Deslicer app icons
+  - Unified dashboard status-color palette to match standard Splunk status colors
+  - Dashboard index now admin-overridable via macros (deslicer_insights_index /
+    deslicer_insights_internal) — works without edits for non-default indexes
+
+Fixed:
+  - Dashboard Studio packaging so the dashboard installs cleanly and passes
+    AppInspect cloud vetting
+
+Removed:
+  - Legacy Simple XML version of the Insights Node Monitoring dashboard
+
+Documentation:
+  - Refreshed Splunkbase listing screenshots for the redesigned dashboard and
+    current configuration/inputs screens
+  - New companion walkthrough videos: a setup walkthrough (enrolling and
+    configuring the add-on with the Deslicer Automation Copilot) and a DAP
+    value-realization video (turning streamed configuration data into business
+    insights and audited automation)
+
+Version 1.0.0 (2026-03-xx)
+---------------------------
+Initial public release on Splunkbase.
+
+New features:
+  - Single app package for all Splunk Enterprise host tiers (indexers,
+    search heads, heavy forwarders, cluster managers)
+  - Collector binary for Linux x86_64 (amd64) and arm64 (aarch64)
+  - Automatic enrollment with Deslicer Observer API using a one-time token
+  - API key lifecycle management: expiry detection, automatic rotation,
+    and revocation handling with re-enrollment blocking
+  - Modular input supervisor with exponential backoff on binary crash
+  - Deployment Server support: provision enrollment token via
+    local/enrollment.conf before deploying to hosts
+  - Configuration UI with encrypted credential storage (Splunk
+    storage/passwords endpoint — no plain-text secrets in conf files)
+  - Insights Node Monitoring dashboard (enable via local/app.conf on SHC)
+  - Binary update detection: automatically restarts collector when a new
+    binary is deployed via Deployment Server
+  - Admin-only access: Configuration and Inputs restricted to admin and
+    sc_admin roles; app hidden from non-admin users by default

@@ -1,0 +1,1014 @@
+<dashboard version="2"><label>Insights Node Monitoring</label><description>Deslicer AI Insights Node status, health monitoring, certificate tracking, and error analysis</description><definition><![CDATA[
+{
+    "title": "Insights Node Monitoring",
+    "description": "Deslicer AI Insights Node status, health monitoring, certificate tracking, and error analysis",
+    "inputs": {
+        "input_audit_search": {
+            "options": {
+                "defaultValue": "*",
+                "placeholder": "e.g. error, auth, snapshot",
+                "token": "audit_search_tok"
+            },
+            "title": "Search Audit Events",
+            "type": "input.text"
+        },
+        "input_host": {
+            "context": {
+                "formattedConfig": {
+                    "number": {
+                        "prefix": ""
+                    }
+                },
+                "formattedStatics": ">statics | formatByType(formattedConfig)",
+                "label": ">primary | seriesByName(\"host\") | renameSeries(\"label\") | formatByType(formattedConfig)",
+                "statics": [
+                    [
+                        "All Hosts"
+                    ],
+                    [
+                        "*"
+                    ]
+                ],
+                "value": ">primary | seriesByName(\"host\") | renameSeries(\"value\") | formatByType(formattedConfig)"
+            },
+            "dataSources": {
+                "primary": "ds_host_list"
+            },
+            "options": {
+                "defaultValue": "*",
+                "items": ">frame(label, value) | prepend(formattedStatics) | objects()",
+                "token": "host_tok"
+            },
+            "title": "Host Filter",
+            "type": "input.dropdown"
+        },
+        "input_log_search": {
+            "options": {
+                "defaultValue": "*",
+                "placeholder": "e.g. error, sender, snapshot",
+                "token": "log_search_tok"
+            },
+            "title": "Search logs",
+            "type": "input.text"
+        },
+        "time_tok": {
+            "options": {
+                "defaultValue": "-24h@h,now",
+                "token": "time_tok"
+            },
+            "title": "Time Range",
+            "type": "input.timerange"
+        }
+    },
+    "defaults": {
+        "dataSources": {},
+        "tokens": {
+            "default": {
+                "log_search_tok": {
+                    "value": "*"
+                }
+            }
+        }
+    },
+    "visualizations": {
+        "viz_activity_timeline": {
+            "dataSources": {
+                "primary": "ds_activity_timeline"
+            },
+            "options": {
+                "legendDisplay": "bottom",
+                "noResultsMessage": "No activity data in this time range",
+                "seriesColors": [
+                    "#65a637",
+                    "#1e93c6",
+                    "#f8be34",
+                    "#d93f3c",
+                    "#ec7d31",
+                    "#999999"
+                ],
+                "stackMode": "stacked",
+                "xAxisTitleText": "Time",
+                "yAxisTitleText": "Event Count"
+            },
+            "title": "Insights Node Activity Over Time",
+            "type": "splunk.area"
+        },
+        "viz_api_key_rotations": {
+            "dataSources": {
+                "primary": "ds_api_key_rotations"
+            },
+            "options": {
+                "count": 10,
+                "fontSize": "small",
+                "noResultsMessage": "No API key rotation events in this time range",
+                "rowNumbers": false,
+                "wrap": true
+            },
+            "title": "API Key Rotation Events",
+            "type": "splunk.table"
+        },
+        "viz_audit_trail": {
+            "dataSources": {
+                "primary": "ds_audit_trail"
+            },
+            "options": {
+                "columnDisplay": {
+                    "_time": {
+                        "hidden": true
+                    }
+                },
+                "columnWidths": {},
+                "count": 20,
+                "dataOverlayMode": "none",
+                "fontSize": "small",
+                "noResultsMessage": "No activity events found. Try widening the time range or clearing the search filter.",
+                "rowNumbers": false,
+                "wrap": true
+            },
+            "title": "Agent Activity Audit Trail",
+            "type": "splunk.table"
+        },
+        "viz_auth_events": {
+            "dataSources": {
+                "primary": "ds_auth_events"
+            },
+            "options": {
+                "count": 10,
+                "fontSize": "small",
+                "noResultsMessage": "No auth or enrollment events found in this time range",
+                "rowNumbers": false,
+                "wrap": true
+            },
+            "title": "Auth & Enrollment Events",
+            "type": "splunk.table"
+        },
+        "viz_config_files": {
+            "containerOptions": {
+                "description": {
+                    "color": "#ffffff"
+                },
+                "title": {
+                    "color": "#ffffff"
+                }
+            },
+            "context": {
+                "filesColorConfig": [
+                    {
+                        "to": 1,
+                        "value": "#999999"
+                    },
+                    {
+                        "from": 1,
+                        "value": "#1e93c6"
+                    }
+                ]
+            },
+            "dataSources": {
+                "primary": "ds_config_files"
+            },
+            "options": {
+                "backgroundColor": "> primary | seriesByName('count') | lastPoint() | rangeValue(filesColorConfig)",
+                "deltaFontSize": 14,
+                "majorColor": "#ffffff",
+                "majorFontSize": 48,
+                "majorValue": "> primary | seriesByName('count') | lastPoint()",
+                "trendDisplay": "off",
+                "trendFontSize": 14,
+                "unit": "files",
+                "unitFontSize": 20,
+                "unitPosition": "after"
+            },
+            "title": "Config Files Collected",
+            "type": "splunk.singlevalue"
+        },
+        "viz_error_rate": {
+            "context": {
+                "errorRateColorConfig": [
+                    {
+                        "to": 0.01,
+                        "value": "#006d00"
+                    },
+                    {
+                        "from": 0.01,
+                        "to": 5,
+                        "value": "#f8be34"
+                    },
+                    {
+                        "from": 5,
+                        "value": "#d93f3c"
+                    }
+                ]
+            },
+            "dataSources": {
+                "primary": "ds_error_rate"
+            },
+            "options": {
+                "backgroundColor": "> primary | seriesByName('rate') | lastPoint() | rangeValue(errorRateColorConfig)",
+                "deltaFontSize": 14,
+                "majorColor": "#ffffff",
+                "majorFontSize": 48,
+                "majorValue": "> primary | seriesByName('rate') | lastPoint()",
+                "numberPrecision": 1,
+                "trendDisplay": "off",
+                "trendFontSize": 14,
+                "underLabel": "of all log events",
+                "unit": "%",
+                "unitFontSize": 20,
+                "unitPosition": "after"
+            },
+            "title": "Error Rate",
+            "type": "splunk.singlevalue"
+        },
+        "viz_error_trend": {
+            "dataSources": {
+                "primary": "ds_error_trend"
+            },
+            "options": {
+                "legendDisplay": "bottom",
+                "noResultsMessage": "No errors or warnings in this time range",
+                "seriesColorsByField": {
+                    "ERROR": "#d93f3c",
+                    "WARN": "#f8be34",
+                    "WARNING": "#ec7d31"
+                },
+                "stackMode": "stacked"
+            },
+            "title": "Error & Warning Trend",
+            "type": "splunk.area"
+        },
+        "viz_file_changes": {
+            "containerOptions": {},
+            "context": {},
+            "dataSources": {
+                "primary": "ds_file_changes"
+            },
+            "options": {},
+            "showLastUpdated": false,
+            "showProgressBar": false,
+            "title": "File Changes Detected",
+            "type": "splunk.table"
+        },
+        "viz_hosts": {
+            "containerOptions": {
+                "description": {
+                    "color": "#ffffff"
+                },
+                "title": {
+                    "color": "#ffffff"
+                }
+            },
+            "context": {
+                "hostsColorConfig": [
+                    {
+                        "to": 1,
+                        "value": "#999999"
+                    },
+                    {
+                        "from": 1,
+                        "value": "#1e93c6"
+                    }
+                ]
+            },
+            "dataSources": {
+                "primary": "ds_hosts_count"
+            },
+            "options": {
+                "backgroundColor": "> primary | seriesByName('count') | lastPoint() | rangeValue(hostsColorConfig)",
+                "deltaFontSize": 14,
+                "majorColor": "#ffffff",
+                "majorFontSize": 48,
+                "majorValue": "> primary | seriesByName('count') | lastPoint()",
+                "trendDisplay": "off",
+                "trendFontSize": 14,
+                "unit": "hosts",
+                "unitFontSize": 20,
+                "unitPosition": "after"
+            },
+            "title": "Hosts Monitored",
+            "type": "splunk.singlevalue"
+        },
+        "viz_enrollment_issues": {
+            "dataSources": {
+                "primary": "ds_enrollment_issues"
+            },
+            "options": {
+                "count": 10,
+                "fontSize": "small",
+                "noResultsMessage": "No enrollment issues in this time range — token and credentials look healthy.",
+                "rowNumbers": false,
+                "wrap": true
+            },
+            "title": "Enrollment Issues (Action Required)",
+            "type": "splunk.table"
+        },
+        "viz_ib7JQS1x": {
+            "containerOptions": {
+                "description": {
+                    "color": "#ffffff"
+                },
+                "title": {
+                    "color": "#ffffff"
+                },
+                "visibility": {}
+            },
+            "context": {
+                "backgroundColorEditorConfig": [
+                    {
+                        "match": "Blocked",
+                        "value": "#d93f3c"
+                    },
+                    {
+                        "match": "Revoked",
+                        "value": "#d93f3c"
+                    },
+                    {
+                        "match": "Unknown",
+                        "value": "#f8be34"
+                    },
+                    {
+                        "match": "Enrolled",
+                        "value": "#006d00"
+                    },
+                    {
+                        "match": "Not Enrolled",
+                        "value": "#999999"
+                    }
+                ],
+                "statusColorConfig": [
+                    {
+                        "match": "Healthy",
+                        "value": "#006d00"
+                    },
+                    {
+                        "match": "Stale",
+                        "value": "#f8be34"
+                    },
+                    {
+                        "match": "Offline",
+                        "value": "#d93f3c"
+                    }
+                ]
+            },
+            "dataSources": {
+                "primary": "ds_YzcoFFiH"
+            },
+            "options": {
+                "backgroundColor": "> majorValue | matchValue(backgroundColorEditorConfig)",
+                "majorValue": "> sparklineValues | lastPoint()",
+                "sparklineValues": "> primary | seriesByName('status')",
+                "trendValue": "> sparklineValues | delta(-2)"
+            },
+            "showLastUpdated": false,
+            "showProgressBar": false,
+            "title": "Enrollment Status",
+            "type": "splunk.singlevalue"
+        },
+        "viz_log_stream": {
+            "dataSources": {
+                "primary": "ds_log_stream"
+            },
+            "options": {
+                "count": 25,
+                "fontSize": "small",
+                "noResultsMessage": "No log events found. Try widening the time range or check that the insights node is running.",
+                "rowNumbers": false,
+                "wrap": true
+            },
+            "title": "Operational Log Stream",
+            "type": "splunk.table"
+        },
+        "viz_node_last_seen": {
+            "containerOptions": {
+                "description": {
+                    "color": "#ffffff"
+                },
+                "title": {
+                    "color": "#ffffff"
+                }
+            },
+            "dataSources": {
+                "primary": "ds_node_status"
+            },
+            "options": {
+                "align": "center",
+                "backgroundColor": "transparent",
+                "majorColor": "#ffffff",
+                "majorFontSize": 14,
+                "majorValue": "> primary | seriesByName('last_seen') | lastPoint()",
+                "sparklineDisplay": "off",
+                "trendDisplay": "off",
+                "underLabelFontSize": 12,
+                "unit": "last seen:",
+                "unitPosition": "before"
+            },
+            "title": "",
+            "type": "splunk.singlevalue"
+        },
+        "viz_node_status": {
+            "containerOptions": {
+                "description": {
+                    "color": "#ffffff"
+                },
+                "title": {
+                    "color": "#ffffff"
+                }
+            },
+            "context": {
+                "backgroundColorEditorConfig": [
+                    {
+                        "match": "Stopped",
+                        "value": "#d93f3c"
+                    },
+                    {
+                        "match": "Auth Error",
+                        "value": "#f8be34"
+                    },
+                    {
+                        "match": "Degraded",
+                        "value": "#f8be34"
+                    },
+                    {
+                        "match": "Running",
+                        "value": "#006d00"
+                    }
+                ],
+                "statusColorConfig": [
+                    {
+                        "match": "Healthy",
+                        "value": "#006d00"
+                    },
+                    {
+                        "match": "Stale",
+                        "value": "#f8be34"
+                    },
+                    {
+                        "match": "Offline",
+                        "value": "#d93f3c"
+                    }
+                ]
+            },
+            "dataSources": {
+                "primary": "ds_node_status"
+            },
+            "description": "",
+            "options": {
+                "backgroundColor": "> majorValue | matchValue(backgroundColorEditorConfig)",
+                "deltaFontSize": 14,
+                "majorColor": "#ffffff",
+                "majorFontSize": 48,
+                "majorValue": "> sparklineValues | lastPoint()",
+                "sparklineValues": "> primary | seriesByName('status')",
+                "trendFontSize": 14,
+                "trendValue": "> sparklineValues | delta(-2)",
+                "unit": "",
+                "unitFontSize": 20
+            },
+            "title": "Node Status",
+            "type": "splunk.singlevalue"
+        },
+        "viz_recent_errors": {
+            "dataSources": {
+                "primary": "ds_recent_errors"
+            },
+            "options": {
+                "count": 15,
+                "fontSize": "small",
+                "noResultsMessage": "No errors in the selected time range — all clear!",
+                "rowNumbers": false,
+                "wrap": true
+            },
+            "title": "Recent Errors (Last 1 Hour)",
+            "type": "splunk.table"
+        },
+        "viz_top_apps": {
+            "dataSources": {
+                "primary": "ds_top_apps"
+            },
+            "options": {
+                "legendDisplay": "off",
+                "noResultsMessage": "No app configuration data collected yet",
+                "xAxisTitleText": "Application",
+                "yAxisTitleText": "File Count"
+            },
+            "title": "Config Files by App (Top 10)",
+            "type": "splunk.bar"
+        },
+        "viz_total_events": {
+            "containerOptions": {
+                "description": {
+                    "color": "#ffffff"
+                },
+                "title": {
+                    "color": "#ffffff"
+                }
+            },
+            "context": {
+                "eventsColorConfig": [
+                    {
+                        "to": 1,
+                        "value": "#d93f3c"
+                    },
+                    {
+                        "from": 1,
+                        "value": "#006d00"
+                    }
+                ]
+            },
+            "dataSources": {
+                "primary": "ds_total_events"
+            },
+            "options": {
+                "backgroundColor": "> primary | seriesByName('count') | lastPoint() | rangeValue(eventsColorConfig)",
+                "deltaFontSize": 14,
+                "majorColor": "#ffffff",
+                "majorFontSize": 48,
+                "majorValue": "> primary | seriesByName('count') | lastPoint()",
+                "trendDisplay": "off",
+                "trendFontSize": 14,
+                "unitFontSize": 20
+            },
+            "title": "Total Events",
+            "type": "splunk.singlevalue"
+        },
+        "viz_transmissions": {
+            "dataSources": {
+                "primary": "ds_observed_transmissions"
+            },
+            "options": {
+                "legendDisplay": "bottom",
+                "noResultsMessage": "No data transmissions recorded in this time range",
+                "seriesColorsByField": {
+                    "Config Items": "#65a637",
+                    "Failed": "#d93f3c",
+                    "Files": "#1e93c6",
+                    "Parsed": "#f8be34"
+                },
+                "stackMode": "stacked"
+            },
+            "title": "Observed Data Transmissions",
+            "type": "splunk.column"
+        }
+    },
+    "dataSources": {
+        "ds_9glR8RGf": {
+            "name": "Enrollment Status copy 1",
+            "options": {
+                "query": "(`deslicer_insights_internal`\n  (\"Enrollment blocked\" OR \"Enrollment successful\" OR \"Created enrollment credentials\" OR \"Using previously enrolled credentials\" OR \"API key revoked\" OR \"cut off\" OR \"no credentials available\" OR \"Cannot start collector\"))\nOR (`deslicer_insights_index`\n  (\"Batch ingestion successful\" OR \"Collector PID\" OR \"Starting collector\"))\n| sort -_time\n| head 1\n| eval status=case(\n    match(_raw, \"Enrollment blocked|no credentials available|Cannot start collector\"), \"Blocked\",\n    match(_raw, \"revoked|cut off\"), \"Revoked\",\n    match(_raw, \"Enrollment successful|Created enrollment|previously enrolled\"), \"Enrolled\",\n    match(_raw, \"Batch ingestion successful|Collector PID|Starting collector\"), \"Enrolled\",\n    1==1, \"Unknown\")\n| append [| makeresults | eval status=\"Not Enrolled\"]\n| head 1",
+                "queryParameters": {
+                    "earliest": "-7d",
+                    "latest": "now"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_enrollment_issues": {
+            "name": "Enrollment Issues Detail",
+            "options": {
+                "query": "`deslicer_insights_internal` host=$host_tok$\n  (\"Enrollment blocked\" OR \"no credentials available\" OR \"Cannot start collector\" OR \"API key revoked\" OR \"cut off\")\n| eval lv=coalesce(log_level,\"WARNING\")\n| eval msg=coalesce(message,_raw)\n| eval recommendation=case(\n    match(msg, \"same token as revoked\"), \"Issue a new enrollment token in Deslicer AI (do not rotate the existing token if other hosts still need it). Update local/enrollment.conf or the Configuration UI, then restart the input.\",\n    match(msg, \"no credentials available|Cannot start collector\"), \"Configure an enrollment token via Settings > Integrations > Deslicer Automation Platform, or place a token in local/enrollment.conf.\",\n    match(msg, \"revoked|cut off\"), \"Revoke is active — mint a fresh enrollment token and update this host.\",\n    1==1, \"Review the log message and renew enrollment credentials if needed.\")\n| eval Time=strftime(_time,\"%Y-%m-%d %H:%M:%S\")\n| table Time, host, lv, msg, recommendation\n| rename host as Host, lv as Level, msg as Message, recommendation as \"Recommended Action\"\n| sort -Time\n| head 10",
+                "queryParameters": {
+                    "earliest": "-7d",
+                    "latest": "now"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_YzcoFFiH": {
+            "name": "Enrollment Status",
+            "options": {
+                "query": "(`deslicer_insights_internal`\n  (\"Enrollment blocked\" OR \"Enrollment successful\" OR \"Created enrollment credentials\" OR \"Using previously enrolled credentials\" OR \"API key revoked\" OR \"cut off\" OR \"no credentials available\" OR \"Cannot start collector\"))\nOR (`deslicer_insights_index`\n  (\"Batch ingestion successful\" OR \"Collector PID\" OR \"Starting collector\"))\n| sort -_time\n| head 1\n| eval status=case(\n    match(_raw, \"Enrollment blocked|no credentials available|Cannot start collector\"), \"Blocked\",\n    match(_raw, \"revoked|cut off\"), \"Revoked\",\n    match(_raw, \"Enrollment successful|Created enrollment|previously enrolled\"), \"Enrolled\",\n    match(_raw, \"Batch ingestion successful|Collector PID|Starting collector\"), \"Enrolled\",\n    1==1, \"Unknown\")\n| append [| makeresults | eval status=\"Not Enrolled\"]\n| head 1",
+                "queryParameters": {
+                    "earliest": "-7d",
+                    "latest": "now"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_activity_timeline": {
+            "name": "Insights Node Activity Over Time",
+            "options": {
+                "query": "`deslicer_insights_index` host=$host_tok$ \n| eval category=case(match(_raw,\"Batch ingestion successful\"),\"ingestion\",match(_raw,\"File modified|File created|File deleted\"),\"file_change\",match(_raw,\"Heartbeat\"),\"heartbeat\",level==\"ERROR\",\"error\",level==\"WARN\",\"warning\",1==1,\"info\") \n| timechart span=1h count by category",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_api_key_rotations": {
+            "name": "API Key Rotation Events",
+            "options": {
+                "query": "`deslicer_insights_index` eventtype=deslicer_insights_auth_key_rotation host=$host_tok$ | eval msg=coalesce(message,_raw) | eval result=coalesce(status,\"-\") | table _time action result expires_at msg | sort -_time | head 20",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_audit_trail": {
+            "name": "Agent Activity Audit Trail",
+            "options": {
+                "query": "`deslicer_insights_index` host=$host_tok$ \n| rex field=_raw \" - (?<msg>.+)$\" \n| eval msg=coalesce(msg,_raw) \n| eval lv=coalesce(log_level,\"INFO\") \n| eval module=coalesce(component,\"insights-node\") \n| eval event_type=case(match(lower(msg),\"enrollment|token.*config|config.*token\"),\"Enrollment\",match(lower(msg),\"input.*enabl|input.*start|collector.*start|node.*start\"),\"Input Started\",match(lower(msg),\"batch ingestion successful|files_processed\"),\"Data Sent\",match(lower(msg),\"sending batch|ingest.*request|send.*batch\"),if(match(lower(msg),\"error|fail\"),\"Send Failed\",\"Data Sent\"),match(lower(msg),\"snapshot|config.*collect|observ\"),\"Config Observed\",match(lower(msg),\"change|drift|diff\"),\"Change Detected\",match(lower(msg),\"enroll\"),if(match(lower(msg),\"error|fail|reject\"),\"Auth Failed\",\"Auth Success\"),lv=\"ERROR\",\"Error\",lv=\"WARN\",\"Warning\",1==1,\"Info\") \n| eval status=case(match(event_type,\"Failed|Error\"),\"error\",match(event_type,\"Warning\"),\"warning\",1==1,\"ok\") \n| eval Time=strftime(_time,\"%Y-%m-%d %H:%M:%S\") \n| fields - _time \n| table Time, host, event_type, status, module, msg \n| rename host as \"Host\", event_type as \"Event Type\", status as \"Status\", module as \"Module\", msg as \"Details\" \n| sort -Time \n| search $audit_search_tok$",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_auth_events": {
+            "name": "Auth and Enrollment Events",
+            "options": {
+                "query": "`deslicer_insights_index` eventtype=deslicer_insights_all_auth host=$host_tok$ \n| eval msg=coalesce(message,_raw) \n| eval result=coalesce(status,\"-\") \n| table _time host level action result msg \n| sort -_time \n| head 25",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_cert_table": {
+            "options": {
+                "query": "`deslicer_insights_index` host=$host_tok$ (cert_path=* OR expiry_date=*) | stats latest(expiry_date) as expiry latest(subject) as subject latest(status) as cert_status by host, cert_path | where isnotnull(expiry) AND expiry!=\"\" | eval days_left=round((strptime(expiry,\"%Y-%m-%d\")-now())/86400,0) | eval health=case(days_left<=0,\"Expired\",days_left<=7,\"Critical\",days_left<=30,\"Warning\",days_left<=90,\"Attention\",1==1,\"OK\") | sort days_left | rename cert_path AS \"Certificate\", expiry AS \"Expiry Date\", days_left AS \"Days Left\", health AS \"Health\", cert_status AS \"Status\"",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_certs_expiring_count": {
+            "options": {
+                "query": "`deslicer_insights_index` host=$host_tok$ (cert_path=* OR expiry_date=*) | stats latest(expiry_date) as expiry by host, cert_path | where isnotnull(expiry) AND expiry!=\"\" | eval days_left=round((strptime(expiry,\"%Y-%m-%d\")-now())/86400,0) | where days_left<=30 | stats count",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_config_files": {
+            "name": "Config Files Collected",
+            "options": {
+                "query": "`deslicer_insights_index` host=$host_tok$ \n| stats dc(file_path) as count",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_error_rate": {
+            "name": "Error Rate percent",
+            "options": {
+                "query": "`deslicer_insights_index` host=* \n| eval is_error=if(log_level==\"ERROR\",1,0) \n| stats sum(is_error) as errors count as total \n| eval rate=if(total>0,round(errors/total*100,2),0) \n| fields rate",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_error_trend": {
+            "name": "Error and Warning Trend",
+            "options": {
+                "query": "`deslicer_insights_index` host=* (log_level=ERROR OR log_level=WARN OR log_level=WARNING) \n| eval lv=coalesce(log_level,\"UNKNOWN\") \n| timechart span=1h count by lv",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_file_changes": {
+            "name": "File Changes Detected",
+            "options": {
+                "query": "`deslicer_insights_index`\n```eventtype=deslicer_insights_change_file_modified OR eventtype=deslicer_insights_change_file_created OR eventtype=deslicer_insights_change_file_deleted```\n| stats count latest(_time) AS last_change BY file_path action\n| sort -last_change\n| eval last_change=strftime(last_change, \"%m/%d %H:%M:%S\")\n| head 15",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_host_list": {
+            "name": "Host List",
+            "options": {
+                "query": "`deslicer_insights_index` | stats count by host | fields host | sort host",
+                "queryParameters": {
+                    "earliest": "-7d",
+                    "latest": "now"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_hosts_count": {
+            "name": "Hosts Monitored",
+            "options": {
+                "query": "`deslicer_insights_index` | stats dc(host) as count",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_log_stream": {
+            "name": "Operational Log Stream",
+            "options": {
+                "query": "`deslicer_insights_index` host=$host_tok$ \n| eval lv=coalesce(level,\"INFO\") \n| eval module=coalesce(target,component,\"insights-node\") \n| eval msg=coalesce(message,_raw) \n| table _time host lv module msg \n| sort -_time \n| head 100 \n| search $log_search_tok$",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_node_status": {
+            "name": "Node Status",
+            "options": {
+                "query": "`deslicer_insights_index` \n| eval is_error=if(log_level==\"ERROR\" OR match(_raw, \"error 401|Unauthorized|API error|revoked|cut off\"), 1, 0) \n| stats latest(_time) AS last_ts count AS total sum(is_error) AS err_count latest(is_error) AS latest_err \n| eval healthy=total-err_count \n| eval status=case(\n    total==0, \"Stopped\",\n    latest_err==1 AND healthy==0, \"Auth Error\",\n    latest_err==1 AND healthy>0, \"Degraded\",\n    1==1, \"Running\") \n| eval last_seen=if(isnotnull(last_ts), strftime(last_ts, \"%m/%d %H:%M:%S\"), \"none\")",
+                "queryParameters": {
+                    "earliest": "-7d",
+                    "latest": "now"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_observed_transmissions": {
+            "name": "Observed Data Transmissions",
+            "options": {
+                "query": "`deslicer_insights_index` eventtype=deslicer_insights_change_ingestion host=$host_tok$ \n| timechart sum(files_processed) AS Files sum(config_items) AS \"Config Items\" sum(parsed_items) AS Parsed sum(failed_count) AS Failed",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_recent_errors": {
+            "name": "Recent Errors Last 1 Hour",
+            "options": {
+                "query": "`deslicer_insights_index` host=* (log_level=ERROR OR log_level=WARN) \n| eval module=coalesce(target,component,\"-\") \n| eval msg=coalesce(message,_raw) \n| table _time host level module msg \n| sort -_time \n| head 30",
+                "queryParameters": {
+                    "earliest": "-1h",
+                    "latest": "now"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_top_apps": {
+            "name": "Config Files by App Top 10",
+            "options": {
+                "query": "`deslicer_insights_index` host=$host_tok$ \n| eval app_name=coalesce(app_name,mvindex(split(file_path,\"/\"),if(like(file_path,\"%/apps/%\"),mvfind(split(file_path,\"/\"),\"apps\")+1,null()))) \n| where isnotnull(app_name) AND app_name!=\"\" \n| stats count by app_name \n| sort -count \n| head 10",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        },
+        "ds_total_events": {
+            "name": "Total Events",
+            "options": {
+                "query": "`deslicer_insights_index` host=$host_tok$ \n| stats count",
+                "queryParameters": {
+                    "earliest": "$time_tok.earliest$",
+                    "latest": "$time_tok.latest$"
+                }
+            },
+            "type": "ds.search"
+        }
+    },
+    "layout": {
+        "globalInputs": [
+            "time_tok",
+            "input_host",
+            "input_audit_search",
+            "input_log_search"
+        ],
+        "layoutDefinitions": {
+            "layout_data_flow": {
+                "options": {
+                    "display": "auto-scale",
+                    "height": 2260,
+                    "width": 1440
+                },
+                "structure": [
+                    {
+                        "item": "viz_transmissions",
+                        "position": {
+                            "h": 360,
+                            "w": 920,
+                            "x": 20,
+                            "y": 20
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_top_apps",
+                        "position": {
+                            "h": 360,
+                            "w": 460,
+                            "x": 960,
+                            "y": 20
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_log_stream",
+                        "position": {
+                            "h": 390,
+                            "w": 1390,
+                            "x": 20,
+                            "y": 1290
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_audit_trail",
+                        "position": {
+                            "h": 560,
+                            "w": 1400,
+                            "x": 10,
+                            "y": 1690
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_auth_events",
+                        "position": {
+                            "h": 470,
+                            "w": 710,
+                            "x": 20,
+                            "y": 810
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_api_key_rotations",
+                        "position": {
+                            "h": 460,
+                            "w": 670,
+                            "x": 750,
+                            "y": 810
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_file_changes",
+                        "position": {
+                            "h": 390,
+                            "w": 1390,
+                            "x": 20,
+                            "y": 400
+                        },
+                        "type": "block"
+                    }
+                ],
+                "type": "absolute"
+            },
+            "layout_node_health": {
+                "options": {
+                    "display": "auto-scale",
+                    "height": 2520,
+                    "width": 1440
+                },
+                "structure": [
+                    {
+                        "item": "viz_node_status",
+                        "position": {
+                            "h": 220,
+                            "w": 260,
+                            "x": 300,
+                            "y": 20
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_node_last_seen",
+                        "position": {
+                            "h": 78,
+                            "w": 260,
+                            "x": 300,
+                            "y": 176
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_total_events",
+                        "position": {
+                            "h": 220,
+                            "w": 253,
+                            "x": 570,
+                            "y": 20
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_config_files",
+                        "position": {
+                            "h": 220,
+                            "w": 272,
+                            "x": 840,
+                            "y": 20
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_hosts",
+                        "position": {
+                            "h": 220,
+                            "w": 282,
+                            "x": 1139,
+                            "y": 20
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_activity_timeline",
+                        "position": {
+                            "h": 360,
+                            "w": 1400,
+                            "x": 20,
+                            "y": 260
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_error_rate",
+                        "position": {
+                            "h": 300,
+                            "w": 360,
+                            "x": 20,
+                            "y": 630
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_error_trend",
+                        "position": {
+                            "h": 300,
+                            "w": 1400,
+                            "x": 20,
+                            "y": 940
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_recent_errors",
+                        "position": {
+                            "h": 300,
+                            "w": 1020,
+                            "x": 400,
+                            "y": 630
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_enrollment_issues",
+                        "position": {
+                            "h": 320,
+                            "w": 1400,
+                            "x": 20,
+                            "y": 1260
+                        },
+                        "type": "block"
+                    },
+                    {
+                        "item": "viz_ib7JQS1x",
+                        "position": {
+                            "h": 220,
+                            "w": 270,
+                            "x": 20,
+                            "y": 20
+                        },
+                        "type": "block"
+                    }
+                ],
+                "type": "absolute"
+            }
+        },
+        "options": {
+            "showTitleAndDescription": true,
+            "submitButton": false
+        },
+        "tabs": {
+            "items": [
+                {
+                    "label": "Node Health",
+                    "layoutId": "layout_node_health"
+                },
+                {
+                    "label": "Node Activity",
+                    "layoutId": "layout_data_flow"
+                }
+            ],
+            "options": {
+                "barPosition": "top",
+                "showTabBar": true
+            }
+        }
+    }
+}
+]]></definition></dashboard>

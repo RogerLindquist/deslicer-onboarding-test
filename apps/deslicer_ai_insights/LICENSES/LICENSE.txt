@@ -1,0 +1,42 @@
+Copyright (c) 2026 Deslicer. All rights reserved.
+
+PROPRIETARY SOFTWARE LICENSE
+
+This software, including all source code, binaries, documentation, and associated
+files (collectively, the "Software"), is the proprietary and confidential property
+of Deslicer ("Deslicer").
+
+GRANT OF LICENSE
+
+Subject to the terms of this license, Deslicer grants you a non-exclusive,
+non-transferable, limited license to install and use the Software solely for your
+internal business operations in connection with the Deslicer platform.
+
+RESTRICTIONS
+
+You may not:
+  (a) copy, modify, adapt, translate, reverse engineer, decompile, disassemble,
+      or create derivative works based on the Software;
+  (b) sell, sublicense, rent, lease, transfer, or otherwise distribute the
+      Software to any third party;
+  (c) remove or alter any proprietary notices, labels, or marks on the Software;
+  (d) use the Software to build a competing product or service.
+
+DISCLAIMER OF WARRANTIES
+
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. DESLICER DISCLAIMS
+ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+LIMITATION OF LIABILITY
+
+IN NO EVENT SHALL DESLICER BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES ARISING OUT OF OR IN CONNECTION WITH THIS
+LICENSE OR THE USE OF THE SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+DAMAGES.
+
+CONTACT
+
+Deslicer
+support@deslicer.com
+https://deslicer.com
