@@ -205,7 +205,7 @@ jobs:
       # command-args — change-action whitespace-splits them.
       - id: plan
         name: Create plan
-        uses: deslicer/change-action@5436e2f1fcbf6c1019f060d21f60bc9d48b068af
+        uses: deslicer/change-action@d78dd26a58f47d5f54c93f316eb3d6db02d2e75e
         with:
           command: plan
           command-args: --target-group ${{ matrix.inventory_group }} --environment ${{ matrix.environment }}
